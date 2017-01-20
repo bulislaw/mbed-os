@@ -2,10 +2,6 @@
     #error [NOT_SUPPORTED] LWIP not supported for this target
 #endif
 
-#if DEVICE_EMAC
-    #error [NOT_SUPPORTED] Not supported for WiFi targets
-#endif
-
 #include <algorithm>
 #include "mbed.h"
 #include "EthernetInterface.h"
