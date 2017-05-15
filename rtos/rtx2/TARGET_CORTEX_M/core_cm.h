@@ -1,3 +1,5 @@
+/** \addtogroup rtos */
+/** @{*/
 /*
  * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
@@ -26,8 +28,10 @@
 #ifndef CORE_CM_H_
 #define CORE_CM_H_
 
-#include "RTE_Components.h"
-#include CMSIS_device_header
+#include <stdint.h>
+#include "cmsis.h"
+#include "cmsis_compiler.h"
+#include "arm_math.h"
 
 #ifndef __ARM_ARCH_6M__
 #define __ARM_ARCH_6M__         0U
@@ -635,7 +639,11 @@ __STATIC_INLINE void SVC_Initialize (void) {
   if (p >= n) {
     n = p + 1U;
   }
+
+/* Only change the SVCall priority if uVisor is not present. */
+#if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
   SCB->SHP[7] = (uint8_t)(0xFEU << n);
+#endif
 #elif  (__ARM_ARCH_6M__      == 1U)
   SCB->SHP[1] |= 0x00FF0000U;
   SCB->SHP[0] |= (SCB->SHP[1] << (8+1)) & 0xFC000000U;
@@ -1522,3 +1530,5 @@ __STATIC_INLINE void atomic_link_put (void **root, void *link) {
 
 
 #endif  // CORE_CM_H_
+
+/** @}*/

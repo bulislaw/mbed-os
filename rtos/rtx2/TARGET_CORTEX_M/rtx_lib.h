@@ -1,3 +1,5 @@
+/** \addtogroup rtos */
+/** @{*/
 /*
  * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
@@ -128,7 +130,7 @@ extern uint32_t         svcRtxKernelGetSysTimerCount (void);
 extern uint32_t         svcRtxKernelGetSysTimerFreq  (void);
 
 // Thread Service Calls
-extern osThreadId_t     svcRtxThreadNew          (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr);
+extern osThreadId_t     svcRtxThreadNew          (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr, void *context);
 extern const char *     svcRtxThreadGetName      (osThreadId_t thread_id);
 extern osThreadId_t     svcRtxThreadGetId        (void);
 extern osThreadState_t  svcRtxThreadGetState     (osThreadId_t thread_id);
@@ -210,5 +212,5 @@ extern uint32_t           svcRtxMessageQueueGetSpace    (osMessageQueueId_t mq_i
 extern osStatus_t         svcRtxMessageQueueReset       (osMessageQueueId_t mq_id);
 extern osStatus_t         svcRtxMessageQueueDelete      (osMessageQueueId_t mq_id);
 
-
 #endif  // RTX_LIB_H_
+/** @}*/

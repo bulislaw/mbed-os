@@ -24,6 +24,7 @@
  */
 
 #include "rtx_lib.h"
+#include "rt_OsEventObserver.h"
 
 
 //  OS Runtime Information
@@ -253,7 +254,7 @@ osStatus_t svcRtxKernelStart (void) {
 
   // Create Idle Thread
   if (osRtxInfo.thread.idle == NULL) {
-    osRtxInfo.thread.idle = svcRtxThreadNew(osRtxIdleThread, NULL, osRtxConfig.idle_thread_attr);
+    osRtxInfo.thread.idle = svcRtxThreadNew(osRtxIdleThread, NULL, osRtxConfig.idle_thread_attr, NULL);
     if (osRtxInfo.thread.idle == NULL) {
       EvrRtxKernelError(osError);
       return osError;
@@ -263,7 +264,7 @@ osStatus_t svcRtxKernelStart (void) {
   // Create Timer Thread
   if (osRtxConfig.timer_mq_mcnt != 0U) {
     if (osRtxInfo.timer.thread == NULL) {
-      osRtxInfo.timer.thread = svcRtxThreadNew(osRtxTimerThread, NULL, osRtxConfig.timer_thread_attr);
+      osRtxInfo.timer.thread = svcRtxThreadNew(osRtxTimerThread, NULL, osRtxConfig.timer_thread_attr, NULL);
       if (osRtxInfo.timer.thread == NULL) {
         EvrRtxKernelError(osError);
         return osError;
@@ -541,6 +542,15 @@ osStatus_t osKernelStart (void) {
     EvrRtxKernelError(osErrorISR);
     return osErrorISR;
   }
+
+  /* Call the pre-start event (from unprivileged mode) if the handler exists
+   * and the kernel is not running. */
+  /* FIXME osEventObs needs to be readable but not writable from unprivileged
+   * code. */
+  if (osKernelGetState() != osKernelRunning && osEventObs && osEventObs->pre_start) {
+    osEventObs->pre_start();
+  }
+
   return __svcKernelStart();
 }
 

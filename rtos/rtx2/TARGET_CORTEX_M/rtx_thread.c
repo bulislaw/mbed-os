@@ -24,6 +24,7 @@
  */
 
 #include "rtx_lib.h"
+#include "rt_OsEventObserver.h"
 
 
 //  ==== Helper functions ====
@@ -425,6 +426,10 @@ void osRtxThreadSwitch (os_thread_t *thread) {
   osRtxInfo.thread.run.next = thread;
   osRtxThreadStackCheck();
   EvrRtxThreadSwitch(thread);
+
+  if (osEventObs && osEventObs->thread_switch) {
+    osEventObs->thread_switch(thread->context);
+  }
 }
 
 /// Dispatch specified Thread or Ready Thread with Highest Priority.
@@ -548,7 +553,7 @@ void osRtxThreadPostProcess (os_thread_t *thread) {
 //  ==== Service Calls ====
 
 //  Service Calls definitions
-SVC0_3M(ThreadNew,           osThreadId_t,    osThreadFunc_t, void *, const osThreadAttr_t *)
+SVC0_4M(ThreadNew,           osThreadId_t,    osThreadFunc_t, void *, const osThreadAttr_t *, void *)
 SVC0_1 (ThreadGetName,       const char *,    osThreadId_t)
 SVC0_0 (ThreadGetId,         osThreadId_t)
 SVC0_1 (ThreadGetState,      osThreadState_t, osThreadId_t)
@@ -571,8 +576,8 @@ SVC0_0 (ThreadFlagsGet,      uint32_t)
 SVC0_3 (ThreadFlagsWait,     uint32_t,        uint32_t, uint32_t, uint32_t)
 
 /// Create a thread and add it to Active Threads.
-/// \note API identical to osThreadNew
-osThreadId_t svcRtxThreadNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr) {
+/// \note API identical to osThreadContextNew
+osThreadId_t svcRtxThreadNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr, void *context) {
   os_thread_t  *thread;
   uint32_t      attr_bits;
   void         *stack_mem;
@@ -768,6 +773,13 @@ osThreadId_t svcRtxThreadNew (osThreadFunc_t func, void *argument, const osThrea
   osRtxInfo.post_process.thread = osRtxThreadPostProcess;
 
   EvrRtxThreadCreated(thread);
+
+  /* Notify the OS event observer of a new thread. */
+  if (osEventObs && osEventObs->thread_create) {
+    thread->context = osEventObs->thread_create((int)thread, context);
+  } else {
+    thread->context = context;
+  }
 
   osRtxThreadDispatch(thread);
 
@@ -1215,6 +1227,10 @@ osStatus_t svcRtxThreadTerminate (osThreadId_t thread_id) {
       return osErrorResource;
   }
 
+  if (osEventObs && osEventObs->thread_destroy) {
+    osEventObs->thread_destroy(thread->context);
+  }
+
   // Release owned Mutexes
   osRtxMutexOwnerRelease(thread->mutex_list);
 
@@ -1501,12 +1517,16 @@ uint32_t isrRtxThreadFlagsSet (osThreadId_t thread_id, uint32_t flags) {
 
 /// Create a thread and add it to Active Threads.
 osThreadId_t osThreadNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr) {
+  return osThreadContextNew(func, argument, attr, NULL);
+}
+
+osThreadId_t osThreadContextNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr, void *context) {
   EvrRtxThreadNew(func, argument, attr);
   if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
     EvrRtxThreadError(NULL, osErrorISR);
     return NULL;
   }
-  return __svcThreadNew(func, argument, attr);
+  return __svcThreadNew(func, argument, attr, context);
 }
 
 /// Get name of a thread.
