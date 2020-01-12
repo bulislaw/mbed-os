@@ -1,0 +1,20 @@
+@startuml
+class Architecture << (A,aqua) >>
+class Profile << (P,LightSkyBlue) >>
+class Core << (C,RoyalBlue) >>
+class "SoC Family" << (F,Chocolate) >>
+class SoC << (S,Brown) >>
+class "Internal Peripheral" << (D,Orchid) >>
+class "External Peripheral" << (D,Orchid) >>
+class Board << (B,Green) >>
+
+Board o-- "1.." SoC
+"SoC Family" <|-- "1.." SoC
+"SoC Family" *-- "1.." Core
+Profile <|-- Core
+Architecture <|-- Profile
+Board o-- "0.." "External Peripheral"
+SoC o-- "0.." "Internal Peripheral"
+"SoC Family" o-- "0.." "Internal Peripheral"
+hide members
+@enduml

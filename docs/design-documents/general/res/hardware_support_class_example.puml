@@ -1,0 +1,34 @@
+@startuml
+class "Arm v7" << (A,aqua) >>
+class "Arm v7-M" << (P,LightSkyBlue) >>
+class "Cortex-M4" << (C,RoyalBlue) >>
+class "Cortex-M7" << (C,RoyalBlue) >>
+class STM32H7 << (F,Chocolate) >>
+class STM32H74X << (F,Chocolate) >>
+class STM32H747XI << (S,Brown) >>
+class STM32H743ZI << (S,Brown) >>
+class "Ethernet connector" << (D,Orchid) >>
+class "Murata 1DX WiFi/BLE" << (D,Orchid) >>
+class "NXP SE0502" << (D,Orchid) >>
+class "Arduino Portenta H7" << (B,Green) >>
+class "NUCLEO-H743ZI" << (B,Green) >>
+
+"Arduino Portenta H7" o-- "NXP SE0502"
+"Arduino Portenta H7" o-- "Murata 1DX WiFi/BLE"
+"Arduino Portenta H7" o-- STM32H747XI
+STM32H74X <|-- STM32H747XI
+"NUCLEO-H743ZI" o-- "Ethernet connector"
+"NUCLEO-H743ZI" o-- STM32H743ZI
+STM32H74X <|-- STM32H743ZI
+STM32H7 <|-- STM32H74X
+STM32H7 *-- "Cortex-M7"
+STM32H7 *-- "Cortex-M4"
+"Arm v7-M" <|-- "Cortex-M4"
+"Arm v7-M" <|-- "Cortex-M7"
+"Arm v7" <|-- "Arm v7-M"
+
+note top of "Arduino Portenta H7" : Development board from Ardunio
+note top of "NUCLEO-H743ZI" : Development board from STM
+
+hide members
+@enduml

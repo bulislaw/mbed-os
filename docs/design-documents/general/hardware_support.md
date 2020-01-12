@@ -68,17 +68,46 @@ During module porting work our partners and internal teams highlighted that hard
 
 ### Requirements and assumptions
 
-Hardware support is critical part of any OS. Well defined and generic but simple integration layer is a key to enabling rich varieties of existing hardware and setting users for success.
+Hardware support is critical part of any OS. Well defined and generic but simple integration layer is a key to enabling rich varieties of existing hardware and setting users for success. We'll look at couple of different aspects of hardware integration in following chapters.
+
+#### Hardware hierarchy
 
 Looking at the hardware available on the market and using past customer and partner interactions we can distinguish multiple levels of hardware targets:
 
 * Processor architecture - Current scope limited to Arm (v6, v7 and v8).
+
 * Architecture profile or family - Mbed OS is focused on Cortex-M processors, but there's limited support for Cortex-A present.
+
 * Core - Specific implementation of architecture and profile, eg. Cortex-M4.
+
 * SoC family - Collection of related system-on-chip designs from a vendor. It can be build on one or more MCU cores, which don't need to be of the same type or even architecture.
+
 * SoC - A physical chip, contains one or more MCU cores, buses, various memories, timers, caches and other peripherals.
-* External peripheral - They are not part of the hierarchy outlined above, but they are important building blocks of the final design. It can be any piece of hardware external to the SoC, usually requiring a driver or a configuration, eg. external memories, clock sources, modems.
+
+* Peripheral - They are not part of the hierarchy outlined above, but they are important building blocks. A peripheral would be any piece of additional hardware providing some functionality and requiring software and/or configuration to function. We can divide the peripherals in two groups:
+
+  *  internal - built into the core, SoC family or SoC. Common examples include MPU, timers, GPIO, SPI, I2C.
+  *  external - on a separate die included into a board design. Common examples include external flash, connectivity modules, GPS.
+
+  In principle there's no differences between the two groups and most of the peripherals could be implemented in both ways. The division is still useful to illustrate where the hardware block fits into the design and what implication on the overall system it may have. External peripherals are often more complicated and would require using one of the internal peripheral to access them.
+
 * Board - From the OS point of view it's a usable physical hardware, it can be either development board or a final product. A board is a collection of one or more SoCs and zero or more external peripherals.
+
+The hierarchy described above can be approximated using UML class diagram:
+
+ ![HW Support hierarchy diagram](res/hardware_support_class.png)
+
+Worth adding that the OS support for hardware should be quite flexible and the above diagram is a generic illustration rather than an absolute rule. Different vendors may choose to define their designs as family of SoCs, SoCs or mix of both. They may define deep network of inheritance or fold it down into simple hierarchy with extended configuration. There is no one correct way, the optimal choice is hardware dependent and will be influenced by the tools and processes guiding design for a specific vendor.
+
+Below is a simplified example of one of the existing targets:
+
+![Simplified example of existing HW hardware integration](res/hardware_support_class_example.png)
+
+#### Standard vs custom hardware
+
+#### Relationship with the OS
+
+#### Porting process
 
 # System architecture and high-level design
 
