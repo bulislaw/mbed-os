@@ -119,9 +119,24 @@ From the technical point of view there's not difference between a BSP for a stan
 
 While standard hardware will usually live in or be closely associated with the OS, custom hardware won't be usually considered fro upstreaming.
 
-#### Relationship with the OS
+#### Hardware porting and abstraction layer
+
+Good hardware integration is a foundation for a solid operating system. Due to plethora of available hardware and a high degree of differentiation between designs from different vendors problem of hardware integration and abstraction is a difficult one.
+
+In Arm ecosystem parts of the abstraction definitions and porting process are already done for us. The Arm architecture, CMSIS-Core, toolchain and standard C library support as well as CMSIS-RTX provide a solid, well defined interface that has to be leveraged by the OS.
+
+We can distinguish two broad categories of integration:
+
+* Bootstrap abstraction layer (BAL) - all the code and configuration needed for the platform to boot and start executing the OS and application code
+* Hardware abstraction layer - common interface for accessing various peripherals
+
+Currently the first layer (BAL) doesn't really exist and it's up to the target to boot the os any means necessary. We need to change that, by developing clear interfaces and mechanism that can be tapped by the hardware. One of the most important actions here is to identify common functionality and code and make it part of the OS.
+
+For both BAL and HAL we need to clearly acknowledge that we won't be support all the hardware features by providing one generic and simple API. We should also acknowledge that it is important to allow the hardware vendors to differentiate and users to use their hardware efficiently. The only way of achieving this without nightmare of infinite fragmentation is to provide a base APIs that abstract out the common functionality in a way that small differences can be mapped onto it and at the same time provide a mechanism for vendors to implement extensions that expose their specific hardware features without destroying the look and feel of the OS.
 
 #### Porting process
+
+#### Distribution mechanisms
 
 #### Officially and community supported hardware
 
