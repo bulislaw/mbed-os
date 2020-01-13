@@ -24,7 +24,7 @@
 
 * Seek review
 * Work with teams on detailed design
-* Think where's the line between overview/requirements and a solution. Move things acordingly. 
+* Think where's the line between overview/requirements and a solution. Move things accordingly. 
 
 # Introduction
 
@@ -80,32 +80,32 @@ Hardware support is critical part of any OS. Well defined and generic but simple
 
 #### Hardware hierarchy
 
-Looking at the hardware available on the market and using past customer and partner interactions we can distinguish multiple levels of hardware targets:
+Looking at the hardware available on the market and using past customer and partner interactions we can distinguish multiple levels of hardware targets integration:
 
-* Processor architecture - Current scope limited to Arm (v6, v7 and v8).
+* Processor architecture - Current scope limited to Arm (v6, v7 and v8). Supported mainly through CMSIS-Core and toolchains integration.
 
-* Architecture profile or family - Mbed OS is focused on Cortex-M processors, but there's limited support for Cortex-A present.
+* Architecture profile or family - Mbed OS is focused on Cortex-M processors, but there's limited support for Cortex-A present. Supported mainly through CMSIS-Core and toolchains integration.
 
-* Core - Specific implementation of architecture and profile, eg. Cortex-M4.
+* Core - Specific implementation of architecture and profile, eg. Cortex-M4. Supported mainly through CMSIS-Core and toolchains integration.
 
-* SoC family - Collection of related system-on-chip designs from a vendor. It can be build on one or more MCU cores, which don't need to be of the same type or even architecture.
+* SoC family - Collection of related system-on-chip designs from a vendor. It can be build on one or more MCU cores, which don't need to be of the same type or even architecture. Will typically include multiple peripheral hardware blocks. Support added by the vendor.
 
-* SoC - A physical chip, contains one or more MCU cores, buses, various memories, timers, caches and other peripherals.
+* SoC - A physical chip, contains one or more MCU cores, buses, various memories, timers, caches and other peripherals. Will typically include multiple peripheral hardware blocks. Support added by the vendor.
 
 * Peripheral - They are not part of the hierarchy outlined above, but they are important building blocks. A peripheral would be any piece of additional hardware providing some functionality and requiring software and/or configuration to function. We can divide the peripherals in two groups:
 
   *  internal - built into the core, SoC family or SoC. Common examples include MPU, timers, GPIO, SPI, I2C.
   *  external - on a separate die included into a board design. Common examples include external flash, connectivity modules, GPS.
 
-  In principle there's no differences between the two groups and most of the peripherals could be implemented in both ways. The division is still useful to illustrate where the hardware block fits into the design and what implication on the overall system it may have. External peripherals are often more complicated and would require using one of the internal peripheral to access them.
+  In principle there's no differences between the two groups and most of the peripherals could be implemented in both ways. The division is still useful to illustrate where the hardware block fits into the design and what implication on the overall system it may have. External peripherals are often more complicated and would require using one of the internal peripheral to access them. Drivers can come from  Mbed OS, silicon vendor or third party contributors.
 
-* Board - From the OS point of view it's a usable physical hardware, it can be either development board or a final product. A board is a collection of one or more SoCs and zero or more external peripherals.
+* Board - From the OS point of view it's a usable physical hardware, it can be either development board or a final product. A board is a collection of one or more SoCs and zero or more external peripherals. Development boards would be supported by their vendor, custom designs would usually live outside of the OS tree.
 
 The hierarchy described above can be approximated using UML class diagram:
 
  ![HW Support hierarchy diagram](res/hardware_support_class.png)
 
-Worth adding that the OS support for hardware should be quite flexible and the above diagram is a generic illustration rather than an absolute rule. Different vendors may choose to define their designs as family of SoCs, SoCs or mix of both. They may define deep network of inheritance or fold it down into simple hierarchy with extended configuration. There is no one correct way, the optimal choice is hardware dependent and will be influenced by the tools and processes guiding design for a specific vendor.
+Worth adding that the OS support for hardware should be quite flexible and the above diagram is a generic illustration rather than a strict requirement. Different silicon vendors may choose to define their designs as family of SoCs, SoCs or mix of both. They may define deeper network of inheritance or fold it down into simple hierarchy with extended configuration. There is no one correct way, the optimal choice is hardware dependent and will be influenced by the hardware, tools and processes guiding design for a specific vendor.
 
 Below is a simplified example of one of the existing targets:
 
@@ -113,9 +113,17 @@ Below is a simplified example of one of the existing targets:
 
 #### Standard vs custom hardware
 
+By standard hardware I mean a generic purpose SoC or a board that is available on the market for 3rd parties to purchase. It can be used either for development purposes or to base derivative designs on it. Usually it would be quite flexible and meant for wide number of deployment. In turn a custom hardware is designed with a specific use case in mind and it may not be applicable outside it. Often it's meant to be embedded in a final product. BSP for it may not be publicly available.
+
+From the technical point of view there's not difference between a BSP for a standard and custom hardware. They should follow the same integration scheme and adhere to the same requirements. The main difference is with the targeted audience. Standard hardware is targeting general audience (community and customers) and this should be reflected by the quality of documentation and available APIs and other resources. Custom hardware on the other hand usually targets smaller set of people, often internal to a specific product team, available resources may focus on their specific needs.
+
+While standard hardware will usually live in or be closely associated with the OS, custom hardware won't be usually considered fro upstreaming.
+
 #### Relationship with the OS
 
 #### Porting process
+
+#### Officially and community supported hardware
 
 # System architecture and high-level design
 
