@@ -18,6 +18,14 @@
 
 0.1 - Initial thoughts based on various prior conversation and reflections - Bartek Szatkowski <bartek.szatkowski@arm.com> - 9.01.2020
 
+### ToDo (temp)
+
+* Finish introduction and architecture of proposed solution
+
+* Seek review
+* Work with teams on detailed design
+* Think where's the line between overview/requirements and a solution. Move things acordingly. 
+
 # Introduction
 
 ### Overview and background
