@@ -127,8 +127,8 @@ In Arm ecosystem parts of the abstraction definitions and porting process are al
 
 We can distinguish two broad categories of integration:
 
-* Bootstrap abstraction layer (BAL) - all the code and configuration needed for the platform to boot and start executing the OS and application code
-* Hardware abstraction layer - common interface for accessing various peripherals
+* Bootstrap abstraction layer (BAL) - all the code and configuration needed for the platform to boot and start executing the OS and application code. This doesn't need to be a separate "thing", but can be a part of HAL. I'm calling it here separately as it's slightly separate and important component.
+* Hardware abstraction layer (HAL) - common interface for accessing various peripherals
 
 Currently the first layer (BAL) doesn't really exist and it's up to the target to boot the os any means necessary. We need to change that, by developing clear interfaces and mechanism that can be tapped by the hardware. One of the most important actions here is to identify common functionality and code and make it part of the OS.
 
