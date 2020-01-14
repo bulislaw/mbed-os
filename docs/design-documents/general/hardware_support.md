@@ -136,7 +136,13 @@ For both BAL and HAL we need to clearly acknowledge that we won't be support all
 
 #### Porting process
 
-#### Distribution mechanisms
+For both custom and standard hardware the porting process will look very similar. Most of the differences are during the initial hardware bringup, before the porting of the OS, which is hardware and vendor specific.
+
+The basic requirement for Mbed OS bringup is that hardware is able to boot and execute arbitrary code. This is usually achieved by downloading or generating a basic vendor support package. Vendors usually make the BSP available for download for standard boards and provide software that can generate them for custom hardware. It will usually consist of clock and pinout description, configuration, linker and startup files, SDK, libraries, documentation and often examples.
+
+This document won't go into details of generating vendor specific support package. Instead it'll identify required artefacts and define a structure in which they should be packaged. We'll engage with silicon vendors to enable their tools to export the basic BSP to defined format. Short term we should also consider building a tool that can accept different formats as produced by vendor tools and transform them into structure accepted by Mbed OS.
+
+#### BSP structure and distribution
 
 #### Officially and community supported hardware
 
