@@ -144,7 +144,17 @@ This document won't go into details of generating vendor specific support packag
 
 #### BSP structure and distribution
 
-#### Officially and community supported hardware
+Mbed hardware support should reuse as many existing components as possible. Tapping into the existing ecosystem of platform support and tools would be ideal.
+
+[CMSIS-Pack](https://arm-software.github.io/CMSIS_5/Pack/html/index.html) is a set of building blocks (tools and rules) as well as a vast repository of various software components. Currently the repository contain a lot of vendor BSP packs, unfortunately they are only basic support packages. As it stands they are unaware of Mbed OS and don't contain enough information or API implementation to support booting Mbed OS.
+
+Fortunately CMSIS-pack is flexible enough to support the extension of existing packs. Each supported board should define an additional pack containing the integration code and configuration. To reduce repetitions and reuse existing work, the new Mbed BSP pack should include (or inherit from) a basic vendor support pack.
+
+Using CMSIS-Pack would allow us to easily support various levels of hardware support:
+
+* Officially supported hardware - best support, works out of the box, quality assured by frequently executed automated testing, failures addressed promptly. They should be part of Mbed OS codebase or   be directly linked to it.
+* Third party or community supported hardware - best effort about the quality and level of support, issues with this boards won't be addressed by Mbed OS team. Support for this board should be clearly marked and easily distinguishable from officially supported hardware. BSP can be linked with Mbed OS and downloaded upon request.
+* Private hardware - support for this hardware is not upstreamed or private to an organisation. There should be a mechanism to import support for out of tree targets into Mbed OS so that they can be used in similar way to other hardware.
 
 # System architecture and high-level design
 
