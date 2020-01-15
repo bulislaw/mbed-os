@@ -57,26 +57,26 @@ During module porting work our partners and internal teams highlighted that hard
 
 ### Requirements and assumptions
 
-Hardware support is critical part of any OS. Well defined and generic but simple integration layer is a key to enabling rich varieties of existing hardware and setting users for success. We'll look at couple of different aspects of hardware integration in following chapters.
+Hardware support is critical part of any OS. Well defined and generic but simple integration layer is key to enabling rich varieties of existing hardware and, not only being ready for future generations of designs, but also setting standards for it. We'll look at couple of different aspects of hardware integration in the following chapters.
 
 #### Hardware hierarchy
 
 Looking at the hardware available on the market and using past customer and partner interactions we can distinguish multiple levels of hardware targets integration:
 
-* Processor architecture - Current scope limited to Arm (v6, v7 and v8). Supported mainly through CMSIS-Core and toolchains integration.
+* Processor architecture - Current scope limited to Arm (v6, v7 and v8). Supported mainly through CMSIS-Core and toolchain integration.
 
-* Architecture profile or family - Mbed OS is focused on Cortex-M processors, but there's limited support for Cortex-A present. Supported mainly through CMSIS-Core and toolchains integration.
+* Architecture profile or family - Mbed OS is focused on Cortex-M processors, but there's a limited support for Cortex-A. Supported mainly through CMSIS-Core and toolchain integration.
 
-* Core - Specific implementation of architecture and profile, eg. Cortex-M4. Supported mainly through CMSIS-Core and toolchains integration.
+* Core - Specific implementation of architecture and profile, eg. Cortex-M4. Supported mainly through CMSIS-Core and toolchain integration.
 
-* SoC family - Collection of related system-on-chip designs from a vendor. It can be build on one or more MCU cores, which don't need to be of the same type or even architecture. Will typically include multiple peripheral hardware blocks. Support added by the vendor.
+* SoC family - Collection of related system-on-chip designs from a vendor. It can be built on one or more MCU cores, which don't need to be of the same type or even architecture. Will typically include multiple peripheral hardware blocks. Support added by the vendor.
 
-* SoC - A physical chip, contains one or more MCU cores, buses, various memories, timers, caches and other peripherals. Will typically include multiple peripheral hardware blocks. Support added by the vendor.
+* SoC - A physical chip, contains one or more MCU cores, buses, various memories, timers, caches and other peripherals. Will typically include multiple peripheral hardware blocks. It may come in multiple variants with different features or memory sizes. Support added by the vendor.
 
-* Peripheral - They are not part of the hierarchy outlined above, but they are important building blocks. A peripheral would be any piece of additional hardware providing some functionality and requiring software and/or configuration to function. We can divide the peripherals in two groups:
+* Peripheral - They are not part of the hierarchy outlined above, but they are important building blocks. A peripheral would be any piece of additional hardware that provides some functionality and requires software driver and/or configuration. We can divide the peripherals in two groups:
 
   *  internal - built into the core, SoC family or SoC. Common examples include MPU, timers, GPIO, SPI, I2C.
-  *  external - on a separate die included into a board design. Common examples include external flash, connectivity modules, GPS.
+  *  external - placed on a separate die included into a board design. Common examples include external flash, connectivity modules, GPS or secure element.
 
   In principle there's no differences between the two groups and most of the peripherals could be implemented in both ways. The division is still useful to illustrate where the hardware block fits into the design and what implication on the overall system it may have. External peripherals are often more complicated and would require using one of the internal peripheral to access them. Drivers can come from  Mbed OS, silicon vendor or third party contributors.
 
@@ -88,54 +88,54 @@ The hierarchy described above can be approximated using UML class diagram:
 
 Worth adding that the OS support for hardware should be quite flexible and the above diagram is a generic illustration rather than a strict requirement. Different silicon vendors may choose to define their designs as family of SoCs, SoCs or mix of both. They may define deeper network of inheritance or fold it down into simple hierarchy with extended configuration. There is no one correct way, the optimal choice is hardware dependent and will be influenced by the hardware, tools and processes guiding design for a specific vendor.
 
-Below is a simplified example of one of the existing targets:
+Below is a simplified example illustrating one of the existing hardware targets:
 
 ![Simplified example of existing HW hardware integration](res/hardware_support_class_example.png)
 
 #### Standard vs custom hardware
 
-By standard hardware I mean a generic purpose SoC or a board that is available on the market for 3rd parties to purchase. It can be used either for development purposes or to base derivative designs on it. Usually it would be quite flexible and meant for wide number of deployment. In turn a custom hardware is designed with a specific use case in mind and it may not be applicable outside it. Often it's meant to be embedded in a final product. BSP for it may not be publicly available.
+By standard hardware I mean a generic purpose SoC or a board that is available on the market for 3rd parties for purchase. It can be used either for development purposes or to base derivative designs on it. Usually it would be quite flexible and meant for wide number of deployment. In turn, custom hardware is designed with and optimised to a specific use case. Often it's meant to be embedded in a final product. The hardware and BSP for it may not be publicly available.
 
-From the technical point of view there's not difference between a BSP for a standard and custom hardware. They should follow the same integration scheme and adhere to the same requirements. The main difference is with the targeted audience. Standard hardware is targeting general audience (community and customers) and this should be reflected by the quality of documentation and available APIs and other resources. Custom hardware on the other hand usually targets smaller set of people, often internal to a specific product team, available resources may focus on their specific needs.
+From the technical point of view there's not difference between a BSP for a standard and custom hardware. They should follow the same integration scheme and adhere to the same requirements. The main difference is with the targeted audience and distribution. Standard hardware is targeting general audience (community and customers) and this should be reflected by the quality of documentation and available APIs and other resources. Custom hardware on the other hand usually targets smaller set of people, often internal to a specific product team, available resources may focus on their specific needs.
 
 While standard hardware will usually live in or be closely associated with the OS, custom hardware won't be usually considered fro upstreaming.
 
 #### Hardware porting and abstraction layer
 
-Good hardware integration is a foundation for a solid operating system. Due to plethora of available hardware and a high degree of differentiation between designs from different vendors problem of hardware integration and abstraction is a difficult one.
+Good hardware integration is a foundation for a solid operating system. Due to plethora of available hardware and a high degree of differentiation between designs means that problem of hardware integration and abstraction is a difficult one.
 
-In Arm ecosystem parts of the abstraction definitions and porting process are already done for us. The Arm architecture, CMSIS-Core, toolchain and standard C library support as well as CMSIS-RTX provide a solid, well defined interface that has to be leveraged by the OS.
+In Arm ecosystem parts of the abstraction definitions and porting process are already done for us. The Arm architecture, CMSIS-Core, toolchain and standard C library support as well as CMSIS-RTX provide a solid, well defined interface that we have to leveraged in the OS.
 
-We can distinguish two broad categories of integration:
+We can distinguish two broad categories of secondary integration:
 
-* Bootstrap abstraction layer (BAL) - all the code and configuration needed for the platform to boot and start executing the OS and application code. This doesn't need to be a separate "thing", but can be a part of HAL. I'm calling it here separately as it's slightly separate and important component.
-* Hardware abstraction layer (HAL) - common interface for accessing various peripherals
+* Bootstrap abstraction layer (BAL) - all the code and configuration needed for the platform to boot and start executing the OS and application code. This doesn't need to be a separate "thing", but can be defined as part of HAL.
+* Hardware abstraction layer (HAL) - common interface for accessing various peripherals.
 
-Currently the first layer (BAL) doesn't really exist and it's up to the target to boot the os any means necessary. We need to change that, by developing clear interfaces and mechanism that can be tapped by the hardware. One of the most important actions here is to identify common functionality and code and make it part of the OS.
+Currently the first layer (BAL) doesn't exist and it's up to the target to boot the OS any means necessary. We need to change that, by developing clear interfaces and mechanism that can be tapped by the hardware. One of the most important actions here is to identify common functionality and code and make it part of the OS to avoid code duplication.
 
-For both BAL and HAL we need to clearly acknowledge that we won't be support all the hardware features by providing one generic and simple API. We should also acknowledge that it is important to allow the hardware vendors to differentiate and users to use their hardware efficiently. The only way of achieving this without nightmare of infinite fragmentation is to provide a base APIs that abstract out the common functionality in a way that small differences can be mapped onto it and at the same time provide a mechanism for vendors to implement extensions that expose their specific hardware features without destroying the look and feel of the OS.
+For both BAL and HAL we need to clearly state that we won't be able to support all the hardware features in a generic and simple set of APIs. We should also acknowledge that it is important to allow the hardware vendors to differentiate and users to use their hardware efficiently. The only way of achieving this without nightmare of infinite fragmentation is to provide a base APIs that abstracts out the common, standard functionality. It doesn't mean that there is to be no differences at this level, but that the existing differences must be mapped onto proposed APIs. At the same time we have to provide a mechanism for vendors to implement extensions that expose their specific hardware features without destroying the look and feel of the OS or introducing uncontrolled fragmentation.
 
 #### Porting process
 
 For both custom and standard hardware the porting process will look very similar. Most of the differences are during the initial hardware bringup, before the porting of the OS, which is hardware and vendor specific.
 
-The basic requirement for Mbed OS bringup is that hardware is able to boot and execute arbitrary code. This is usually achieved by downloading or generating a basic vendor support package. Vendors usually make the BSP available for download for standard boards and provide software that can generate them for custom hardware. It will usually consist of clock and pinout description, configuration, linker and startup files, SDK, libraries, documentation and often examples.
+The basic requirement for Mbed OS bringup is that hardware is able to boot and execute arbitrary code. This is usually achieved by downloading or generating a basic vendor support package. Vendors usually make the BSP available for download for standard boards and provide software that can generate them for custom hardware. It will usually consist of clock and pinout description, configuration, linker and startup files, SDK, libraries, documentation and examples.
 
-This document won't go into details of generating vendor specific support package. Instead it'll identify required artefacts and define a structure in which they should be packaged. We'll engage with silicon vendors to enable their tools to export the basic BSP to defined format. Short term we should also consider building a tool that can accept different formats as produced by vendor tools and transform them into structure accepted by Mbed OS.
+This document won't go into details of generating vendor specific support package. Instead it'll identify required artefacts and define a structure in which they should be packaged. We'll engage with silicon vendors to enable their tools to export the basic BSP to the defined format. Short term we should also consider building a tool that can accept different formats as produced by vendor tools and transform them into structure accepted by Mbed OS.
 
 #### BSP structure and distribution
 
 Mbed hardware support should reuse as many existing components as possible. Tapping into the existing ecosystem of platform support and tools would be ideal.
 
-[CMSIS-Pack](https://arm-software.github.io/CMSIS_5/Pack/html/index.html) is a set of building blocks (tools and rules) as well as a vast repository of various software components. Currently the repository contain a lot of vendor BSP packs, unfortunately they are only basic support packages. As it stands they are unaware of Mbed OS and don't contain enough information or API implementation to support booting Mbed OS.
+[CMSIS-Pack](https://arm-software.github.io/CMSIS_5/Pack/html/index.html) is a set of building blocks (tools and rules) as well as a vast repository of various software components. Currently the repository contain many vendor BSP packs, unfortunately they are only the basic support packages. They are unaware of Mbed OS and don't contain enough information or API implementation to support booting Mbed OS.
 
-Fortunately CMSIS-pack is flexible enough to support the extension of existing packs. Each supported board should define an additional pack containing the integration code and configuration. To reduce repetitions and reuse existing work, the new Mbed BSP pack should include (or inherit from) a basic vendor support pack.
+Fortunately the standard is flexible enough to support the extension of existing packs. Each supported board should define an additional pack containing the integration code and configuration. To reduce repetitions and reuse existing work, the new Mbed BSP packs should include (or inherit from) a basic vendor support pack.
 
 Using CMSIS-Pack would allow us to easily support various levels of hardware support:
 
 * Officially supported hardware - best support, works out of the box, quality assured by frequently executed automated testing, failures addressed promptly. They should be part of Mbed OS codebase or   be directly linked to it.
-* Third party or community supported hardware - best effort about the quality and level of support, issues with this boards won't be addressed by Mbed OS team. Support for this board should be clearly marked and easily distinguishable from officially supported hardware. BSP can be linked with Mbed OS and downloaded upon request.
-* Private hardware - support for this hardware is not upstreamed or private to an organisation. There should be a mechanism to import support for out of tree targets into Mbed OS so that they can be used in similar way to other hardware.
+* Third party or community supported hardware - best effort about the quality and level of support, issues with this boards won't be addressed by Mbed OS team. Support for this group of boards should be clearly marked and easily distinguishable from officially supported hardware. BSP can be linked with Mbed OS and downloaded upon request.
+* Private hardware - support for this hardware is not upstreamed, it can be private to an organisation. There should be a mechanism to import the support for out-of-tree targets into Mbed OS so that they can be used in a way consistent with other hardware.
 
 # System architecture and high-level design
 
